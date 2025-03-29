@@ -3,6 +3,9 @@
 E-Commerce Shop
 
 Group members:
-Marzhan Omarbekova 
+
+Marzhan Omarbekova
+
 Mirkhat Kuljatayev
+
 Alixan Adilbaev 
