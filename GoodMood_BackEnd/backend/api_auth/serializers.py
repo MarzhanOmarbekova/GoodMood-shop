@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from core.models import Customer
+from api_main.models import Customer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 

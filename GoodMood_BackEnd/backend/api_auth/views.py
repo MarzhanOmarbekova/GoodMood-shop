@@ -3,17 +3,18 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status
 
-from shop_auth.serializers import CustomerRegistrationSerializer
+from .serializers import CustomerRegistrationSerializer
 
 
-@api_view(['GET'])
-def getRoutes(request):
-    routes = [
-        'api/token',
-        'api/token/refresh',
-        'api/token/verify',
-    ]
-    return Response(routes)
+class RoutesView(APIView):
+    def get(self, request):
+        routes = [
+            {'url': 'api/token', 'description': 'Get access and refresh tokens'},
+            {'url': 'api/token/refresh', 'description': 'Refresh the access token using a refresh token'},
+            {'url': 'api/token/verify', 'description': 'Verify the validity of an access token'},
+            {'url': 'api/registration', 'description': 'Register a new user'},
+        ]
+        return Response(routes)
 
 class CustomerRegistrationView(APIView):
     def post(self, request):
