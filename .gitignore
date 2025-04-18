@@ -29,3 +29,8 @@ ENV/
 
 # Windows
 Thumbs.db
+
+# Angular
+node_modules/
+dist/
+.angular/
