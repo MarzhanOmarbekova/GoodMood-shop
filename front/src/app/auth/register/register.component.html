@@ -1,0 +1,28 @@
+<div class="auth-intro">
+  <div class="logo-box">
+    <img src="assets/icons/logo.svg" alt="GoodMood Logo">
+  </div>
+  <div class="text-box">
+    <h3>AUTHENTICATE</h3>
+    <p>
+      At Good Mood, our mission is to offer high-quality clothing and accessories that not only meet the latest fashion trends
+      but also make customers feel comfortable and confident. We strive to deliver an exceptional shopping experience,
+      both online and offline, where quality and affordability come together seamlessly.
+    </p>
+  </div>
+</div>
+
+<div class="register-container">
+  <h2>CREATE YOUR ACCOUNT</h2>
+  <form (ngSubmit)="register()">
+    <input [(ngModel)]="formData.email" name="email" placeholder="Email" required/>
+    <input [(ngModel)]="formData.username" name="username" placeholder="Username" required/>
+    <input [(ngModel)]="formData.first_name" name="first_name" placeholder="First Name" required/>
+    <input [(ngModel)]="formData.last_name" name="last_name" placeholder="Last Name" required/>
+    <input [(ngModel)]="formData.password" type="password" name="password" placeholder="Password" required/>
+    <input [(ngModel)]="formData.address"  name="address" placeholder="Address" required/>
+    <input [(ngModel)]="formData.phone_number" name="phone_number" placeholder="Phone Number" required/>
+    <button type="submit">Register</button>
+  </form>
+  <p>Already have an account? <a routerLink="/login">Login</a></p>
+</div>

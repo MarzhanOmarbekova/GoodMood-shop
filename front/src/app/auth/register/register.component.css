@@ -1,0 +1,78 @@
+.auth-intro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+
+.logo-box img {
+  width: 350px;
+  height: auto;
+}
+
+.text-box {
+  color: #1E1A5F;
+  max-width: 500px;
+}
+
+.text-box h3 {
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.text-box p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.register-container {
+  width: 400px;
+  margin: 100px auto;
+  padding: 30px;
+  border: 2px solid #1E1A5F;
+  border-radius: 10px;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+.register-container h2 {
+  margin-bottom: 20px;
+  font-family: 'Arial', sans-serif;
+  color: #1E1A5F;
+}
+
+.register-container input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.register-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #1E1A5F;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.register-container button:hover {
+  background-color: #3d3b78;
+}
+
+.register-container p {
+  margin-top: 15px;
+  font-size: 14px;
+}
