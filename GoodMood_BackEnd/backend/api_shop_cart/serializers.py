@@ -24,12 +24,12 @@ class CartSerializer(serializers.ModelSerializer):
     Includes nested CartItem data and a read-only field for the total price calculation.
     """
 
-    cart_id = serializers.IntegerField(
-        source="id", read_only=True
-    )  # Rename 'id' to 'cart_id'
+    # cart_id = serializers.IntegerField(
+    #     source="id", read_only=True
+    # )  # Rename 'id' to 'cart_id'
     items = CartItemSerializer(many=True, read_only=True)
     total_price = serializers.ReadOnlyField()
 
     class Meta:
         model = Cart
-        fields = ["cart_id", "user", "created_at", "updated_at", "items", "total_price"]
+        fields =["items", "total_price"]
