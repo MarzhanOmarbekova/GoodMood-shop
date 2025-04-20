@@ -1,0 +1,21 @@
+<div class="auth-intro">
+  <div class="logo-box">
+    <img src="assets/icons/logo.svg" alt="GoodMood Logo">
+  </div>
+
+  <div class="login-container">
+    <div class="login-box">
+      <h2>PLEASE LOGIN TO YOUR ACCOUNT</h2>
+
+      <form (ngSubmit)="login()">
+        <input [(ngModel)]="credentials.username" name="username" placeholder="Username" required/>
+        <input [(ngModel)]="credentials.password" type="password" name="password" placeholder="Password" required/>
+        <button type="submit">Login</button>
+      </form>
+
+      <p class="signup-text">Don’t have an account? <a routerLink="/register">Sign up</a></p>
+    </div>
+  </div>
+</div>
+
+
