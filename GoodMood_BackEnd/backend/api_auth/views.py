@@ -9,12 +9,19 @@ from .serializers import CustomerRegistrationSerializer
 class RoutesView(APIView):
     def get(self, request):
         routes = [
-            {'url': 'api/token', 'description': 'Get access and refresh tokens'},
-            {'url': 'api/token/refresh', 'description': 'Refresh the access token using a refresh token'},
-            {'url': 'api/token/verify', 'description': 'Verify the validity of an access token'},
-            {'url': 'api/registration', 'description': 'Register a new user'},
+            {"url": "api/token", "description": "Get access and refresh tokens"},
+            {
+                "url": "api/token/refresh",
+                "description": "Refresh the access token using a refresh token",
+            },
+            {
+                "url": "api/token/verify",
+                "description": "Verify the validity of an access token",
+            },
+            {"url": "api/registration", "description": "Register a new user"},
         ]
         return Response(routes)
+
 
 class CustomerRegistrationView(APIView):
     def post(self, request):
@@ -22,10 +29,13 @@ class CustomerRegistrationView(APIView):
 
         if serializer.is_valid():
             tokens = serializer.save()
-            return Response({
-                "message": "User registered successfully",
-                "access": tokens['access'],
-                "refresh": tokens['refresh']
-            }, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "message": "User registered successfully",
+                    "access": tokens["access"],
+                    "refresh": tokens["refresh"],
+                },
+                status=status.HTTP_201_CREATED,
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
