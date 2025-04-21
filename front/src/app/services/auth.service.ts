@@ -2,21 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Router} from '@angular/router';
-
-interface RegisterData{
-  email: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  password: string;
-  address: string;
-  phone_number: string;
-}
-
-interface LoginData{
-  username: string;
-  password: string;
-}
+import {LoginData, RegisterData} from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
