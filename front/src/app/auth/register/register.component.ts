@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import {AuthService} from '../auth.service';
+import {AuthService} from '../../services/auth.service';
 import {FormsModule} from '@angular/forms';
-import {RouterModule} from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
+import {RegisterData} from '../../models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -11,7 +12,7 @@ import {RouterModule} from '@angular/router';
 })
 export class RegisterComponent {
 
-  formData = {
+  formData: RegisterData = {
     email: "",
     username: "",
     first_name: "",
@@ -21,7 +22,7 @@ export class RegisterComponent {
     phone_number: "",
   }
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private router: Router) {
   }
 
   register() {
@@ -29,6 +30,7 @@ export class RegisterComponent {
       next: (res) => {
         console.log('Registration successful:', res);
         alert('You have registered successfully!');
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error('Registration error:', err);
