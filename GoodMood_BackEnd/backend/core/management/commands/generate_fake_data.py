@@ -1,72 +1,77 @@
+import json
 import random
 from faker import Faker
-from api_main.models import (
-    Category,
-    Product,
-    ProductVariant,
-    Size,
-)
 from django.core.management.base import BaseCommand
-
+from api_main.models import Category, Product, ProductVariant, Size
+import os
 
 class Command(BaseCommand):
-    help = "Generate fake data for categories, products, and product variants"
+    help = "Импортирует товары из data.json в базу данных"
 
     def handle(self, *args, **kwargs):
         fake = Faker()
 
-        # Предустановленные размеры и цвета
+
+        # ✅ Подгружаем JSON
+        try:
+            with open("/home/mbfg/Projects/GoodMood-shop/GoodMood_BackEnd/backend/core/management/commands/data.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(f"❌ Ошибка чтения data.json: {e}"))
+            return
+
+        # ✅ Добавляем размеры (если ещё не добавлены)
         sizes = ["XS", "S", "M", "L", "XL", "XXL"]
-        colors = ["Black", "White", "Red", "Blue", "Green", "Yellow", "Beige", "Gray"]
+        for name in sizes:
+            Size.objects.get_or_create(name=name, defaults={"description": f"Size {name}"})
 
-        # Категории одежды
-        clothing_categories = [
-            "Men",
-            "Women",
-            "Kids",
-            "Shoes",
-            "Accessories",
-            "Sportswear",
-            "Outerwear",
-            "Underwear",
-        ]
-
-        # Добавим размеры, если их ещё нет
-        for size_name in sizes:
-            Size.objects.get_or_create(name=size_name)
-
-        # Создание категорий
-        for cat_name in clothing_categories:
-            cat, created = Category.objects.get_or_create(
-                name=cat_name, defaults={"description": fake.text(max_nb_chars=150)}
+        # ✅ Обработка каждого товара
+        for item in data:
+            title = item.get("title")
+            brand = item.get("brand", "Без бренда")
+            price = item.get("unitPrice", 0)
+            preview_images = item.get("previewImages", [])
+            main_image_url = (
+                preview_images[0].get("large")
+                if preview_images and isinstance(preview_images[0], dict) and "large" in preview_images[0]
+                else fake.image_url()
             )
 
-            # Для каждой категории создаём товары
-            for _ in range(random.randint(5, 10)):  # 5-10 товаров на категорию
-                product_name = (
-                    fake.unique.company()
-                    + " "
-                    + random.choice(["T-Shirt", "Jacket", "Pants", "Shoes", "Hat"])
-                )
-                product = Product.objects.get_or_create(
-                    name=product_name,
-                    description=fake.text(),
-                    price=round(random.uniform(10.0, 200.0), 2),
-                    main_image_url=fake.image_url(),
-                    image_urls=[fake.image_url() for _ in range(3)],
-                )
-                product.categories.add(cat)
+            # Формируем список всех изображений
+            image_urls = [
+                img.get("large") for img in preview_images
+                if isinstance(img, dict) and "large" in img
+            ]
+            categories = item.get("categoryRu", ["Прочее"])
 
-                # Создание вариантов товара
-                for _ in range(random.randint(2, 5)):  # 2-5 вариантов на продукт
-                    size = Size.objects.order_by("?").first()
-                    color = random.choice(colors)
-                    ProductVariant.objects.get_or_create(
-                        product=product,
-                        size=size,
-                        color=color,
-                        stock=random.randint(0, 50),
-                        price=round(random.uniform(10.0, 200.0), 2),
-                    )
+            #Создаём продукт
+            product, created = Product.objects.get_or_create(
+                name=title,
+                defaults={
+                    "description": f"Бренд: {brand}",
+                    "price": price,
+                    "main_image_url": main_image_url,
+                    "image_urls": image_urls,
+                },
+            )
 
-        self.stdout.write(self.style.SUCCESS("✅ Данные успешно сгенерированы!"))
+            #Привязываем категории
+            for cat_name in categories:
+                category, _ = Category.objects.get_or_create(name=cat_name)
+                product.categories.add(category)
+
+            # Добавляем варианты (цвета — рандом, размеры — из существующих)
+            size = Size.objects.order_by("?").first()
+            color = random.choice(["Black", "White", "Gray", "Red", "Blue", "Green", "Yellow", "Beige"])
+
+            ProductVariant.objects.get_or_create(
+                product=product,
+                size=size,
+                color=color,
+                defaults={
+                    "stock": random.randint(1, 30),
+                    "price": price,
+                },
+            )
+
+        self.stdout.write(self.style.SUCCESS("✅ Импорт завершён: товары добавлены из data.json"))
