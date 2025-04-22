@@ -81,3 +81,23 @@ class CustomerRegistrationSerializer(serializers.Serializer):
         # Generate JWT tokens for the user
         refresh = RefreshToken.for_user(user)
         return {"access": str(refresh.access_token), "refresh": str(refresh)}
+
+
+class CustomerProfileSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source="user.id", read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+    first_name = serializers.CharField(source="user.first_name", read_only=True)
+    last_name = serializers.CharField(source="user.last_name", read_only=True)
+
+    class Meta:
+        model = Customer
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "address",
+            "phone_number",
+        ]
