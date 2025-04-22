@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import {AuthService} from '../../services/auth.service';
+import {AuthService} from '../auth.service';
 import {FormsModule} from '@angular/forms';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {LoginData} from '../../models/auth.model';
 
 @Component({
@@ -17,7 +17,7 @@ export class LoginComponent {
     password: ''
   }
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private router: Router) {
   }
 
   login() {
@@ -25,6 +25,7 @@ export class LoginComponent {
       next: (res) => {
         localStorage.setItem('access', res.access);
         localStorage.setItem('refresh', res.refresh);
+        this.router.navigate(['/home']);
         alert("Login successful");
       },
       error: (err) => {

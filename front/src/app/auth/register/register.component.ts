@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import {AuthService} from '../../services/auth.service';
-import {FormsModule} from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
-import {RegisterData} from '../../models/auth.model';
+import { AuthService } from '../auth.service';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { RegisterData } from '../../models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -26,7 +26,7 @@ export class RegisterComponent {
   }
 
   register() {
-    this.authService.register(this.formData).subscribe( {
+    this.authService.register(this.formData).subscribe({
       next: (res) => {
         console.log('Registration successful:', res);
         alert('You have registered successfully!');

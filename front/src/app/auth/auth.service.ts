@@ -14,18 +14,28 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
+    this.checkAuthStatus();
+  }
+
+  private checkAuthStatus(): void {
     const token = localStorage.getItem('access');
-    this.isAuthenticatedSubject.next(!!token);
+    if (token) {
+      // Здесь можно добавить проверку валидности токена через API
+      this.isAuthenticatedSubject.next(true);
+    } else {
+      this.isAuthenticatedSubject.next(false);
+    }
   }
 
   register(data: RegisterData): Observable<any> {
     return this.http.post(`${this.apiUrl}/registration/`, data).pipe(
       tap((response: any) => {
+        console.log('Register response:', response);
         if (response.access) {
           localStorage.setItem('access', response.access);
           localStorage.setItem('refresh', response.refresh);
           this.isAuthenticatedSubject.next(true);
-          this.router.navigate(['/home']); // Перенаправление на главную после успешной регистрации
+          this.router.navigate(['/']);
         }
       })
     );
@@ -34,11 +44,12 @@ export class AuthService {
   login(data: LoginData): Observable<any> {
     return this.http.post(`${this.apiUrl}/token/`, data).pipe(
       tap((response: any) => {
+        console.log('Login response:', response);
         if (response.access) {
           localStorage.setItem('access', response.access);
           localStorage.setItem('refresh', response.refresh);
           this.isAuthenticatedSubject.next(true);
-          this.router.navigate(['/home']); // Перенаправление на главную после успешного входа
+          this.router.navigate(['/']);
         }
       })
     );
@@ -48,15 +59,22 @@ export class AuthService {
     return this.isAuthenticatedSubject.value;
   }
 
-  refreshToken() {
+  refreshToken(): Observable<any> {
     const refresh = localStorage.getItem('refresh');
-    return this.http.post(`${this.apiUrl}/token/refresh/`, { refresh });
+    return this.http.post(`${this.apiUrl}/token/refresh/`, { refresh }).pipe(
+      tap((response: any) => {
+        if (response.access) {
+          localStorage.setItem('access', response.access);
+          this.isAuthenticatedSubject.next(true);
+        }
+      })
+    );
   }
 
   logout(): void {
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 } 

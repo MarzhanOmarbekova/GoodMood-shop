@@ -1,27 +1,31 @@
-import { inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { Router, UrlTree } from '@angular/router';
 import { AuthService } from './auth.service';
-import { CanActivateFn } from '@angular/router';
 
-export const AuthGuard: CanActivateFn = () => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard {
+  constructor(private authService: AuthService, private router: Router) {}
 
-  if (authService.isAuthenticated()) {
-    return true;
+  canActivate(): boolean | UrlTree {
+    if (this.authService.isAuthenticated()) {
+      return true;
+    }
+    return this.router.createUrlTree(['/auth/login']);
   }
+}
 
-  return router.parseUrl('/login');
-};
+@Injectable({
+  providedIn: 'root'
+})
+export class LoginGuard {
+  constructor(private authService: AuthService, private router: Router) {}
 
-// Добавляем новый guard для страниц авторизации
-export const LoginGuard: CanActivateFn = () => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-
-  if (authService.isAuthenticated()) {
-    return router.parseUrl('/home');  // Редирект на главную если уже залогинен
+  canActivate(): boolean | UrlTree {
+    if (!this.authService.isAuthenticated()) {
+      return true;
+    }
+    return this.router.createUrlTree(['/']);
   }
-
-  return true;
-}; 
+} 

@@ -27,14 +27,21 @@ import { AuthService } from '../../auth/auth.service';
       </div>
       
       <div class="nav-right">
-        <a routerLink="/profile" class="icon-button">
-          <i class="fas fa-user"></i>
-        </a>
-        <a routerLink="/cart" class="icon-button">
-          <i class="fas fa-shopping-cart"></i>
-        </a>
+        <ng-container *ngIf="authService.isAuthenticated(); else authButtons">
+          <a routerLink="/profile" class="icon-button">
+            <img src="assets/icons/navigation/profile.svg" alt="user" class="bi bi-person-fill">
+          </a>
+        </ng-container>
+        <ng-template #authButtons>
+          <a routerLink="/auth/login" class="icon-button">
+            <img src="assets/images/login.png" alt="login" class="bi bi-box-arrow-in-right">
+          </a>
+          <a routerLink="/auth/register" class="icon-button">
+            <img src="assets/images/register.png" alt="register" class="bi bi-person-plus-fill">
+          </a>
+        </ng-template>
         <button class="icon-button">
-          <i class="fas fa-search"></i>
+          <img src="assets/icons/navigation/search.svg" alt="search" class="bi bi-search">
         </button>
       </div>
     </nav>
@@ -103,6 +110,7 @@ import { AuthService } from '../../auth/auth.service';
       font-size: 18px;
       padding: 8px;
       transition: color 0.3s;
+      text-decoration: none;
     }
 
     .icon-button:hover {
@@ -111,5 +119,5 @@ import { AuthService } from '../../auth/auth.service';
   `]
 })
 export class NavbarComponent {
-  constructor(private authService: AuthService) {}
+  constructor(public authService: AuthService) {}
 } 
