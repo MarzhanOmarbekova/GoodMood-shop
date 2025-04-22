@@ -7,10 +7,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class CustomerRegistrationSerializer(serializers.Serializer):
     # User model fields
     email = serializers.EmailField(write_only=True)
-    username = serializers.CharField(write_only=True)
+    username = serializers.CharField(write_only=True, min_length=3)
     first_name = serializers.CharField(write_only=True)
     last_name = serializers.CharField(write_only=True)
-    password = serializers.CharField(write_only=True, style={"input_type": "password"})
+    password = serializers.CharField(write_only=True, min_length=8, style={"input_type": "password"})
 
     # Customer model fields
     address = serializers.CharField(required=True, write_only=True)
@@ -26,6 +26,19 @@ class CustomerRegistrationSerializer(serializers.Serializer):
             "address",
             "phone_number",
         ]
+
+    def validate_phone_number(self, value):
+        """Валидация номера телефона"""
+        import re
+        if not re.match(r'^\+?[0-9]{10,}$', value):
+            raise serializers.ValidationError("Invalid phone number format")
+        return value
+
+    def validate_email(self, value):
+        """Дополнительная валидация email"""
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("This email is already registered")
+        return value.lower()  # Нормализация email
 
     def validate(self, data):
         """
