@@ -4,6 +4,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
+from api_main.models import Customer
+from .serializers import CustomerProfileSerializer
 import logging
 
 from .serializers import CustomerRegistrationSerializer
@@ -57,3 +60,16 @@ class CustomerRegistrationView(APIView):
         
         logger.warning(f"Ошибка валидации при регистрации: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            customer_profile = user.customer_profile  # related_name в модели
+        except Customer.DoesNotExist:
+            return Response({"error": "Customer profile not found"}, status=404)
+
+        serializer = CustomerProfileSerializer(customer_profile)
+        return Response(serializer.data)
