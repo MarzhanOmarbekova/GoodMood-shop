@@ -25,6 +25,7 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
   selectedProductDetail: ProductDetail | null = null;
   selectedVariantId: number | null = null;
   selectedQuantity: number = 1;
+  selectedProductId: string | null = null;
 
   constructor(
     private wishlistService: WishlistService,
@@ -104,6 +105,7 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   openModal(productId: string): void {
+    this.selectedProductId = productId;
     this.productDetailService.getProductDetail(productId).subscribe({
       next: (detail) => {
         this.selectedProductDetail = detail;
@@ -122,9 +124,20 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
   addToCart(): void {
     if (!this.selectedVariantId || this.selectedQuantity < 1) return;
     console.log(`${this.selectedVariantId} selected`);
-    this.cartService.addItem(this.selectedVariantId).subscribe({
+    this.cartService.addItem(this.selectedVariantId, this.selectedQuantity).subscribe({
       next: () => {
-        this.closeModal()
+        this.wishlistService.removeFromWishList(String(this.selectedProductId)).subscribe({
+          next: () => {
+            this.products = this.products.filter(
+              product => product.id !== String(this.selectedProductId)
+            );
+            this.closeModal()
+          },
+          error: (error) => {
+            console.error('Error removing cart:', error);
+            this.closeModal();
+          }
+        })
       },
       error: err => {
         console.error('Error adding item:', err);
