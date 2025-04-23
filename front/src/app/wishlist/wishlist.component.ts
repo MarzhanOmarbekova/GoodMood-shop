@@ -25,6 +25,7 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
   selectedProductDetail: ProductDetail | null = null;
   selectedVariantId: number | null = null;
   selectedQuantity: number = 1;
+  selectedProductId: string | null = null;
 
   isAddingToCart = false;
   showSizeError = false;
@@ -108,6 +109,7 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   openModal(productId: string): void {
+    this.selectedProductId = productId;
     this.productDetailService.getProductDetail(productId).subscribe({
       next: (detail) => {
         this.selectedProductDetail = detail;
