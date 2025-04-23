@@ -27,7 +27,7 @@ export class LoginComponent {
         localStorage.setItem('access', res.access);
         localStorage.setItem('refresh', res.refresh);
         this.router.navigate(['/home']);
-        alert("Login successful" + res.access);
+        alert("Login successful");
         // Copy access token to clipboard
         navigator.clipboard.writeText(res.access).then(() => {
           console.log('Token copied to clipboard');
