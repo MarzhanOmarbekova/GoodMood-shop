@@ -1,1 +1,35 @@
-<p>wishlist works!</p>
+<div class="wishlist-container">
+  <h2>Избранное</h2>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загружаем ваш список избранного...</p>
+  </div>
+
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <div class="empty-icon">❤️</div>
+    <h3>Ваш список избранного пуст</h3>
+    <p>Добавляйте понравившиеся товары в избранное, чтобы не потерять их</p>
+    <button class="browse-btn" (click)="navigateToHome()">
+      Перейти к покупкам
+    </button>
+  </div>
+
+  <div *ngIf="!loading && products.length > 0" class="products-grid">
+    <div *ngFor="let product of products" class="product-card">
+      <div class="product-image">
+        <img [src]="product.main_image_url" [alt]="product.name" (click)="navigateToProduct(product.product_id)">
+        <div class="product-actions">
+          <button class="remove-btn" (click)="removeFromWishlist(product.product_id)">
+            <span class="icon">×</span>
+            Удалить
+          </button>
+        </div>
+      </div>
+      <div class="product-info">
+        <h3 (click)="navigateToProduct(product.id)">{{ product.name }}</h3>
+        <p class="price">{{ product.price | number:'1.0-0' }} ₽</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+<div class="profile-container">
+  <!-- User Info Section -->
+  <div class="user-info-section">
+    <div class="user-header">
+      <div class="avatar-container">
+        <img [src]="userProfile.avatar" alt="User avatar" class="avatar">
+      </div>
+      <div class="user-details">
+        <h1>{{ userProfile.name }}</h1>
+        <p>{{ userProfile.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Section -->
+  <div class="profile-navigation">
+    <button 
+      *ngFor="let tab of tabs" 
+      [class.active]="activeTab === tab.id"
+      (click)="setActiveTab(tab.id)"
+      class="tab-button">
+      {{ tab.name }}
+    </button>
+  </div>
+
+  <!-- Content Section -->
+  <div class="profile-content" [ngSwitch]="activeTab">
+    <app-orders *ngSwitchCase="'orders'" [orders]="userProfile.orders"></app-orders>
+    <app-wishlist *ngSwitchCase="'wishlist'" [wishlist]="wishlistProducts"></app-wishlist>
+    <app-settings *ngSwitchCase="'settings'" [profile]="userProfile"></app-settings>
+  </div>
+</div> 

@@ -55,7 +55,7 @@ class SizeAdmin(admin.ModelAdmin):
         "created_at",
     )  # Display fields in the list view
     search_fields = ("name", "description")  # Add search functionality
-    list_filter = ("created_at",)  # Add a filter by creation date
+    list_filter = ("created_at",)  #     Add a filter by creation date
 
 
 # WishList Admin

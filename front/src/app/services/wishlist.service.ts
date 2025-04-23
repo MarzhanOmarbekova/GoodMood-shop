@@ -1,30 +1,28 @@
 import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http";
 import { Observable } from 'rxjs';
-import {Product} from '../models/product.model';
+import { WishlistItem } from '../models/profile.model';
 
 @Injectable({
   providedIn: 'root'
 })
-
 export class WishlistService {
-
-  private apiUrl: string = "http://127.0.0.1:8000/api/wishlist/";
+  private apiUrl: string = "http://127.0.0.1:8000/api";
 
   constructor(private http: HttpClient) { }
 
-  getWishList(): Observable<{products: Product[]}[]> {
-    return this.http.get<{products: Product[]}[]>(this.apiUrl);
+  getWishList(): Observable<WishlistItem[]> {
+    return this.http.get<WishlistItem[]>(`${this.apiUrl}/wishlist/`);
   }
 
-  addToWishList(productId: number): Observable<any> {
-    return this.http.post( this.apiUrl, {product_id: productId} );
+  addToWishList(productId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/wishlist/`, { product_id: productId });
   }
 
-  removeFromWishList(productId: number): Observable<any> {
-    return this.http.delete( this.apiUrl, {body:{product_id: productId}} );
+  removeFromWishList(productId: string): Observable<any> {
+    console.log(productId);
+    return this.http.delete(`${this.apiUrl}/wishlist/`, {
+      body: { product_id: productId }
+    });
   }
-
-
-
 }

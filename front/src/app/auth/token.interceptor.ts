@@ -10,53 +10,67 @@ import {
 import {catchError, Observable, switchMap, throwError} from 'rxjs';
 import {AuthService} from './auth.service';
 
-
 @Injectable()
-
 export class TokenInterceptor implements HttpInterceptor {
+  private apiUrl = 'http://127.0.0.1:8000/api/';
 
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // req: это твой исходный запрос
-    // next: это объект, который пропускает запрос дальше
-    // HttpEvent: ответ от сервера (например, данные от GET, результат POST, ошибка и т.п.)
-    const access = localStorage.getItem('access');
+    // Проверяем, является ли запрос к нашему API
+    if (!req.url.startsWith(this.apiUrl)) {
+      return next.handle(req);
+    }
 
-    if (access && !req.url.includes('/token/') && !req.url.includes('/registration/')) {
+    const access = localStorage.getItem('access');
+    const isAuthRequest = req.url.includes('/token/') || req.url.includes('/registration/');
+
+    // Добавляем токен ко всем запросам к API, кроме аутентификации
+    if (access && !isAuthRequest) {
       req = req.clone({
         setHeaders: {
           Authorization: `Bearer ${access}`
         }
-      })
+      });
     }
-    // handle(req): запускает отправку запроса
-    return next.handle(req).pipe(
-      // Мы передаём в pipe() операторы, которые будут применять логику после запроса.
-      catchError((error: HttpErrorResponse) => {
 
-        if (error.status === 401 && localStorage.getItem('refresh')) {
-          return this.authService.refreshToken().pipe(
-            switchMap((res:any) => {
-              localStorage.setItem('access', res.access);
-              const newReq = req.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${res.access}`
+    return next.handle(req).pipe(
+      catchError((error: HttpErrorResponse) => {
+        // Обрабатываем только 401 ошибки для API запросов
+        if (error.status === 401) {
+          const refresh = localStorage.getItem('refresh');
+          
+          // Пытаемся обновить токен, если есть refresh token и это не запрос обновления токена
+          if (refresh && !req.url.includes('/token/refresh/')) {
+            return this.authService.refreshToken().pipe(
+              switchMap((res: any) => {
+                // Обновляем access token в localStorage
+                localStorage.setItem('access', res.access);
+                
+                // Повторяем исходный запрос с новым токеном
+                const newReq = req.clone({
+                  setHeaders: {
+                    Authorization: `Bearer ${res.access}`
+                  }
+                });
+                return next.handle(newReq);
+              }),
+              catchError((err) => {
+                // Если не удалось обновить токен, выходим из системы
+                if (err.status === 401) {
+                  this.authService.logout();
                 }
-              });
-              return next.handle(newReq);
-            }),
-            catchError((err) => {
-              this.authService.logout();
-              return throwError(() => err);
-            })
-          )
-        } else {
-          this.authService.logout();
+                return throwError(() => err);
+              })
+            );
+          } else {
+            // Если нет refresh token или это запрос обновления токена, выходим из системы
+            this.authService.logout();
+          }
         }
+        
         return throwError(() => error);
       })
     );
   }
-
 }

@@ -1,11 +1,95 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { WishlistService } from '../services/wishlist.service';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
+import { WishlistItem } from '../models/profile.model';
 
 @Component({
   selector: 'app-wishlist',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './wishlist.component.html',
   styleUrl: './wishlist.component.css'
 })
-export class WishlistComponent {
+export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() wishlist?: WishlistItem[];
+  products: WishlistItem[] = [];
+  loading: boolean = true;
+  private routerSubscription?: Subscription;
 
+  constructor(
+    private wishlistService: WishlistService,
+    private router: Router
+  ) {
+    // Подписываемся на изменения маршрута только если компонент используется как отдельная страница
+    if (!this.isEmbedded()) {
+      this.routerSubscription = this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe(() => {
+        this.loadWishlist();
+      });
+    }
+  }
+
+  private isEmbedded(): boolean {
+    return Array.isArray(this.wishlist) && this.wishlist.length > 0;
+  }
+
+  ngOnInit(): void {
+    this.loadWishlist();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['wishlist'] && changes['wishlist'].currentValue) {
+      this.products = changes['wishlist'].currentValue;
+      this.loading = false;
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  loadWishlist(): void {
+    this.loading = true;
+    console.log('Loading wishlist...');
+    this.wishlistService.getWishList().subscribe({
+      next: (products) => {
+        console.log('Received products:', products);
+        this.products = Array.isArray(products) ? products : [];
+        console.log('Updated products array:', this.products);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading wishlist:', error);
+        this.products = [];
+        this.loading = false;
+      }
+    });
+  }
+
+  removeFromWishlist(productId: string): void {
+    console.log('Removing product:', productId);
+    this.wishlistService.removeFromWishList(productId).subscribe({
+      next: () => {
+        this.products = this.products.filter(product => product.id !== productId);
+        console.log('Product removed, remaining products:', this.products);
+      },
+      error: (error) => {
+        console.error('Error removing from wishlist:', error);
+      }
+    });
+    this.loadWishlist();
+  }
+
+  navigateToProduct(productId: string): void {
+    this.router.navigate(['/product', productId]);
+  }
+
+  navigateToHome(): void {
+    this.router.navigate(['/']);
+  }
 }

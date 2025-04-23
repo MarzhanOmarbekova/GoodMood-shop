@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         # ✅ Подгружаем JSON
         try:
-            with open("/home/mbfg/Projects/GoodMood-shop/GoodMood_BackEnd/backend/core/management/commands/data.json", "r", encoding="utf-8") as file:
+            with open("C:/Users/NEXTGENPC/Desktop/GoodMood-shop/GoodMood_BackEnd/backend/core/management/commands/data.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
         except Exception as e:
             self.stderr.write(self.style.ERROR(f"❌ Ошибка чтения data.json: {e}"))

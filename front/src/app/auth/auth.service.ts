@@ -9,7 +9,7 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  public apiUrl = 'http://127.0.0.1:8000/api';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
@@ -20,8 +20,29 @@ export class AuthService {
   private checkAuthStatus(): void {
     const token = localStorage.getItem('access');
     if (token) {
-      // Здесь можно добавить проверку валидности токена через API
-      this.isAuthenticatedSubject.next(true);
+      // Verify token with backend
+      this.http.post(`${this.apiUrl}/token/verify/`, { token }).subscribe({
+        next: () => {
+          this.isAuthenticatedSubject.next(true);
+        },
+        error: () => {
+          // Token is invalid, try to refresh
+          const refresh = localStorage.getItem('refresh');
+          if (refresh) {
+            this.refreshToken().subscribe({
+              next: () => {
+                this.isAuthenticatedSubject.next(true);
+              },
+              error: () => {
+                // If refresh fails, clear everything
+                this.logout();
+              }
+            });
+          } else {
+            this.logout();
+          }
+        }
+      });
     } else {
       this.isAuthenticatedSubject.next(false);
     }

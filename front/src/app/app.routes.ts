@@ -38,6 +38,11 @@ export const routes: Routes = [
         loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent)
       },
       {
+        path: 'wishlist',
+        canActivate: [AuthGuard],
+        loadComponent: () => import('./wishlist/wishlist.component').then(m => m.WishlistComponent)
+      },
+      {
         path: '**',
         redirectTo: 'home'
       }
