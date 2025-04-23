@@ -1,33 +1,90 @@
 <div class="cart-container">
   <h2>Моя корзина</h2>
 
-  <div *ngIf="cartItems.length === 0">
-    <p>Ваша корзина пуста.</p>
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загрузка корзины...</p>
   </div>
 
-  <div class="cart-item" *ngFor="let item of cartItems">
-    <img [src]="item.product_main_image" alt="{{ item.product_name }}" class="item-image" />
+  <div *ngIf="!loading && cartItems.length === 0" class="empty-state">
+    <div class="empty-icon">🛒</div>
+    <h3>Ваша корзина пуста</h3>
+    <p>Добавьте товары в корзину, чтобы оформить заказ</p>
+    <button routerLink="/" class="browse-btn">Перейти к покупкам</button>
+  </div>
 
-    <div class="item-details">
-      <h3>{{ item.product_name }}</h3>
-      <p class="description">{{ item.product_description }}</p>
-      <p>Размер: {{ item.size }}, Цвет: {{ item.color }}</p>
-      <p>Цена за шт: {{ item.price }} ₸</p>
+  <div class="cart-content" *ngIf="!loading && cartItems.length > 0">
+    <div class="cart-items">
+      <div class="cart-item" *ngFor="let item of cartItems" [class.updating]="isUpdating(item.product_variant_id)">
+        <div class="item-image-container">
+          <img [src]="item.product_main_image" [alt]="item.product_name" class="item-image" />
+        </div>
 
-      <div class="quantity-control">
-        <button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">-</button>
-        <span>{{ item.quantity }}</span>
-        <button (click)="updateQuantity(item, item.quantity + 1)">+</button>
+        <div class="item-details">
+          <div class="item-header">
+            <h3>{{ item.product_name }}</h3>
+            <button class="remove-btn" (click)="removeItem(item.product_variant_id)" [disabled]="isUpdating(item.product_variant_id)">
+              <span class="remove-icon">×</span>
+            </button>
+          </div>
+
+          <p class="description">{{ item.product_description }}</p>
+          
+          <div class="item-meta">
+            <span class="size">Размер: {{ item.size }}</span>
+            <span class="color">Цвет: {{ item.color }}</span>
+          </div>
+
+          <div class="item-controls">
+            <div class="quantity-control">
+              <button 
+                (click)="updateQuantity(item, item.quantity - 1)"
+                [disabled]="item.quantity <= 1 || isUpdating(item.product_variant_id)"
+                class="quantity-btn">
+                −
+              </button> 
+              <input 
+                type="number" 
+                [ngModel]="item.quantity"
+                (ngModelChange)="updateQuantity(item, $event)"
+                [min]="1"
+                [max]="item.stock"
+                [disabled]="isUpdating(item.product_variant_id)"
+                class="quantity-input">
+              <button 
+                (click)="updateQuantity(item, item.quantity + 1)"
+                [disabled]="item.quantity >= item.stock || isUpdating(item.product_variant_id)"
+                class="quantity-btn">
+                +
+              </button>
+            </div>
+
+            <div class="price-info">
+              <p class="unit-price">{{ item.price }} ₸ за шт.</p>
+              <p class="total-price">{{ item.item_total_price }} ₸</p>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <p>Всего: {{ item.item_total_price }} ₸</p>
     </div>
 
-    <button class="remove-btn" (click)="removeItem(item.product_variant_id)">Удалить</button>
-  </div>
-
-  <div class="cart-summary" *ngIf="cartItems.length > 0">
-    <p><strong>Итого: {{ totalPrice }} ₸</strong></p>
-    <button class="checkout-btn">Оформить заказ</button>
+    <div class="cart-summary">
+      <h3>Итого заказа</h3>
+      <div class="summary-row">
+        <span>Товары ({{cartItems.length}})</span>
+        <span>{{ totalPrice }} ₸</span>
+      </div>
+      <div class="summary-row">
+        <span>Доставка</span>
+        <span>Бесплатно</span>
+      </div>
+      <div class="summary-total">
+        <span>К оплате</span>
+        <span>{{ totalPrice }} ₸</span>
+      </div>
+      <button class="checkout-btn" (click)="checkout()">
+        Оформить заказ
+      </button>
+    </div>
   </div>
 </div>

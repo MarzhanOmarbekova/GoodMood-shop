@@ -26,6 +26,10 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
   selectedVariantId: number | null = null;
   selectedQuantity: number = 1;
 
+  isAddingToCart = false;
+  showSizeError = false;
+  errorMessage: string | null = null;
+
   constructor(
     private wishlistService: WishlistService,
     private router: Router,
@@ -87,12 +91,12 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
       next: () => {
         this.products = this.products.filter(product => product.id !== productId);
         console.log('Product removed, remaining products:', this.products);
+        this.loadWishlist();
       },
       error: (error) => {
         console.error('Error removing from wishlist:', error);
       }
     });
-    this.loadWishlist();
   }
 
   navigateToProduct(productId: string): void {
@@ -113,22 +117,33 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
     })
   }
 
-  closeModal() {
+  closeModal(): void {
     this.selectedProductDetail = null;
     this.selectedVariantId = null;
     this.selectedQuantity = 1;
+    this.showSizeError = false;
+    this.errorMessage = null;
   }
 
   addToCart(): void {
-    if (!this.selectedVariantId || this.selectedQuantity < 1) return;
-    console.log(`${this.selectedVariantId} selected`);
-    this.cartService.addItem(this.selectedVariantId).subscribe({
+    if (!this.selectedVariantId) {
+      this.showSizeError = true;
+      return;
+    }
+
+    this.showSizeError = false;
+    this.errorMessage = null;
+    this.isAddingToCart = true;
+
+    this.cartService.addItem(this.selectedVariantId, this.selectedQuantity).subscribe({
       next: () => {
-        this.closeModal()
+        this.isAddingToCart = false;
+        this.closeModal();
       },
-      error: err => {
-        console.error('Error adding item:', err);
+      error: (error) => {
+        this.isAddingToCart = false;
+        this.errorMessage = error.error?.message || 'Failed to add item to cart. Please try again.';
       }
-    })
+    });
   }
 }

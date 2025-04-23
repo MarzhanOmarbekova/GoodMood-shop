@@ -20,40 +20,67 @@
       <div class="product-image">
         <img [src]="product.main_image_url" [alt]="product.name" (click)="navigateToProduct(product.product_id)">
         <div class="product-actions">
-          <button class="remove-btn" (click)="removeFromWishlist(product.product_id)">
+          <button class="action-btn remove-btn" (click)="removeFromWishlist(product.product_id)">
             <span class="icon">×</span>
             Delete
           </button>
-          <button (click)="openModal(product.product_id)">
+          <button class="action-btn add-cart-btn" (click)="openModal(product.product_id)">
+            <span class="icon">🛒</span>
             Add to Cart
           </button>
         </div>
       </div>
       <div class="product-info">
-        <h3 (click)="navigateToProduct(product.id)">{{ product.name }}</h3>
+        <h3 (click)="navigateToProduct(product.product_id)">{{ product.name }}</h3>
         <p class="price">{{ product.price | number:'1.0-0' }} ₽</p>
       </div>
     </div>
   </div>
 </div>
 
-
+<!-- Modal -->
 <div *ngIf="selectedProductDetail" class="modal-overlay" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
-    <h3>{{ selectedProductDetail.name }}</h3>
+    <button class="modal-close" (click)="closeModal()">×</button>
+    
+    <div class="modal-header">
+      <h3>{{ selectedProductDetail.name }}</h3>
+      <p class="modal-price">{{ selectedProductDetail.price }} ₽</p>
+    </div>
 
-    <label for="variantSelect">Size:</label>
-    <select id="variantSelect" [(ngModel)]="selectedVariantId">
-      <option *ngFor="let v of selectedProductDetail.variants" [value]="v.product_variant_id">
-        {{ v.size }} — {{ v.price }} ₽
-      </option>
-    </select>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="variantSelect">Size:</label>
+        <select id="variantSelect" [(ngModel)]="selectedVariantId" class="form-control" [class.error]="showSizeError">
+          <option value="" disabled selected>Select size</option>
+          <option *ngFor="let v of selectedProductDetail.variants" [value]="v.product_variant_id">
+            {{ v.size }} — {{ v.price }} ₽
+          </option>
+        </select>
+        <small class="error-message" *ngIf="showSizeError">Please select a size</small>
+      </div>
 
-    <label for="quantity">Quantity:</label>
-    <input type="number" id="quantity" [(ngModel)]="selectedQuantity" min="1" />
+      <div class="form-group">
+        <label for="quantity">Quantity:</label>
+        <div class="quantity-control">
+          <button class="quantity-btn" (click)="selectedQuantity = selectedQuantity > 1 ? selectedQuantity - 1 : 1" [disabled]="isAddingToCart">-</button>
+          <input type="number" id="quantity" [(ngModel)]="selectedQuantity" min="1" class="form-control" [disabled]="isAddingToCart">
+          <button class="quantity-btn" (click)="selectedQuantity = selectedQuantity + 1" [disabled]="isAddingToCart">+</button>
+        </div>
+      </div>
+    </div>
 
-    <button (click)="addToCart()">Add to Cart</button>
-    <button (click)="closeModal()">Cancel</button>
+    <div class="modal-footer">
+      <button class="modal-btn cancel-btn" (click)="closeModal()" [disabled]="isAddingToCart">Cancel</button>
+      <button class="modal-btn confirm-btn" (click)="addToCart()" [disabled]="!selectedVariantId || isAddingToCart">
+        <span *ngIf="!isAddingToCart">Add to Cart</span>
+        <span *ngIf="isAddingToCart">Adding...</span>
+      </button>
+    </div>
+
+    <div class="error-notification" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
   </div>
 </div>
 
