@@ -22,7 +22,10 @@
         <div class="product-actions">
           <button class="remove-btn" (click)="removeFromWishlist(product.product_id)">
             <span class="icon">×</span>
-            Удалить
+            Delete
+          </button>
+          <button (click)="openModal(product.product_id)">
+            Add to Cart
           </button>
         </div>
       </div>
@@ -33,3 +36,24 @@
     </div>
   </div>
 </div>
+
+
+<div *ngIf="selectedProductDetail" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>{{ selectedProductDetail.name }}</h3>
+
+    <label for="variantSelect">Size:</label>
+    <select id="variantSelect" [(ngModel)]="selectedVariantId">
+      <option *ngFor="let v of selectedProductDetail.variants" [value]="v.product_variant_id">
+        {{ v.size }} — {{ v.price }} ₽
+      </option>
+    </select>
+
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity" [(ngModel)]="selectedQuantity" min="1" />
+
+    <button (click)="addToCart()">Add to Cart</button>
+    <button (click)="closeModal()">Cancel</button>
+  </div>
+</div>
+

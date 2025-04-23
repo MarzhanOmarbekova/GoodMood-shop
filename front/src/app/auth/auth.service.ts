@@ -98,4 +98,4 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/auth/login']);
   }
-} 
+}

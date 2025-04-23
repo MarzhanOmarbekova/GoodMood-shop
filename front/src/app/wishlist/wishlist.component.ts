@@ -4,11 +4,15 @@ import { WishlistService } from '../services/wishlist.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { WishlistItem } from '../models/profile.model';
+import {Product, ProductDetail} from '../models/product.model';
+import {ProductDetailService} from '../services/product-detail.service';
+import {CartService} from '../services/cart.service';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './wishlist.component.html',
   styleUrl: './wishlist.component.css'
 })
@@ -18,9 +22,15 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
   loading: boolean = true;
   private routerSubscription?: Subscription;
 
+  selectedProductDetail: ProductDetail | null = null;
+  selectedVariantId: number | null = null;
+  selectedQuantity: number = 1;
+
   constructor(
     private wishlistService: WishlistService,
-    private router: Router
+    private router: Router,
+    private productDetailService: ProductDetailService,
+    private cartService: CartService,
   ) {
     // Подписываемся на изменения маршрута только если компонент используется как отдельная страница
     if (!this.isEmbedded()) {
@@ -91,5 +101,34 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
 
   navigateToHome(): void {
     this.router.navigate(['/']);
+  }
+
+  openModal(productId: string): void {
+    this.productDetailService.getProductDetail(productId).subscribe({
+      next: (detail) => {
+        this.selectedProductDetail = detail;
+        this.selectedVariantId =detail.variants?.[0]?.product_variant_id || null;
+        this.selectedQuantity = 1;
+      }
+    })
+  }
+
+  closeModal() {
+    this.selectedProductDetail = null;
+    this.selectedVariantId = null;
+    this.selectedQuantity = 1;
+  }
+
+  addToCart(): void {
+    if (!this.selectedVariantId || this.selectedQuantity < 1) return;
+    console.log(`${this.selectedVariantId} selected`);
+    this.cartService.addItem(this.selectedVariantId).subscribe({
+      next: () => {
+        this.closeModal()
+      },
+      error: err => {
+        console.error('Error adding item:', err);
+      }
+    })
   }
 }

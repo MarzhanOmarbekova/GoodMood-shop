@@ -18,18 +18,21 @@ import { AuthService } from '../../auth/auth.service';
           <span>GOODMOOD</span>
         </a>
       </div>
-      
+
       <div class="nav-center">
         <a routerLink="/products">PRODUCTS</a>
         <a routerLink="/styles">STYLES</a>
         <a routerLink="/services">SERVICES</a>
         <a routerLink="/contact">CONTACT</a>
       </div>
-      
+
       <div class="nav-right">
         <ng-container *ngIf="authService.isAuthenticated(); else authButtons">
           <a routerLink="/profile" class="icon-button">
             <img src="assets/icons/navigation/profile.svg" alt="user" class="bi bi-person-fill">
+          </a>
+          <a routerLink="/cart" class="icon-button">
+            <img src="assets/icons/navigation/cart.svg" alt="user" class="bi bi-person-fill">
           </a>
         </ng-container>
         <ng-template #authButtons>
@@ -120,4 +123,4 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class NavbarComponent {
   constructor(public authService: AuthService) {}
-} 
+}
