@@ -1,0 +1,33 @@
+<div class="cart-container">
+  <h2>Моя корзина</h2>
+
+  <div *ngIf="cartItems.length === 0">
+    <p>Ваша корзина пуста.</p>
+  </div>
+
+  <div class="cart-item" *ngFor="let item of cartItems">
+    <img [src]="item.product_main_image" alt="{{ item.product_name }}" class="item-image" />
+
+    <div class="item-details">
+      <h3>{{ item.product_name }}</h3>
+      <p class="description">{{ item.product_description }}</p>
+      <p>Размер: {{ item.size }}, Цвет: {{ item.color }}</p>
+      <p>Цена за шт: {{ item.price }} ₸</p>
+
+      <div class="quantity-control">
+        <button (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">-</button>
+        <span>{{ item.quantity }}</span>
+        <button (click)="updateQuantity(item, item.quantity + 1)">+</button>
+      </div>
+
+      <p>Всего: {{ item.item_total_price }} ₸</p>
+    </div>
+
+    <button class="remove-btn" (click)="removeItem(item.product_variant_id)">Удалить</button>
+  </div>
+
+  <div class="cart-summary" *ngIf="cartItems.length > 0">
+    <p><strong>Итого: {{ totalPrice }} ₸</strong></p>
+    <button class="checkout-btn">Оформить заказ</button>
+  </div>
+</div>
