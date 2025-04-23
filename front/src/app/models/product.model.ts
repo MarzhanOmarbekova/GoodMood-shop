@@ -1,29 +1,28 @@
 export interface Product {
   product_id: string;
   name: string;
-  price: string | number;
-  main_image_url: string;
-  in_wishlist: boolean;
   description: string;
-  categories: string[];
+  price: number;
+  main_image_url: string;
+  category: string;
+  in_wishlist?: boolean;
 }
 
 export interface ProductVariant {
-  product_variant_id: string;
-  size : string;
-  color : string;
-  stock : number;
-  price : number;
+  product_variant_id: number;
+  size: string;
+  color: string;
+  stock: number;
+  price: number;
 }
 
-export interface ProductDetail {
-  product_id:number;
+export interface ProductDetail extends Product {
+  variants: ProductVariant[];
+  additional_images: string[];
+}
+
+export interface Category {
+  id: string;
   name: string;
-  description: string;
-  price: string | number;
-  main_image_url: string;
-  in_wishlist: boolean;
-  categories: string[];
-  image_urls : string[];
-  variants : ProductVariant[],
+  code: string;
 }

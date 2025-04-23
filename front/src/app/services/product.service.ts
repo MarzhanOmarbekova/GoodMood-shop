@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Product } from '../models/product.model';
+import { Product, Category } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +11,20 @@ export class ProductService {
 
   constructor(private http: HttpClient) { }
 
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/products/`);
+  getProducts(category?: string): Observable<Product[]> {
+    let url = `${this.apiUrl}/products/`;
+    if (category) {
+      url += `?category=${category}`;
+    }
+    return this.http.get<Product[]>(url);
   }
 
   getFeaturedProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/products/`);
+    return this.http.get<Product[]>(`${this.apiUrl}/products/featured/`);
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiUrl}/categories/`);
   }
 
   addToWishList(productId: string): Observable<any> {
@@ -24,8 +32,6 @@ export class ProductService {
   }
 
   removeFromWishList(productId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/wishlist/`, {
-      body: { product_id: productId }
-    });
+    return this.http.delete(`${this.apiUrl}/wishlist/`, { body: { product_id: productId } });
   }
 } 

@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   imports: [CommonModule, RouterLink],
   template: `
     <!-- Banner section -->
-    <div class="banner" style="background-image: url('assets/images/main-header-image.png'); background-size: cover; background-position: center; width: 100%; height: 60vh;">
+    <div class="banner" style="background-image: url('assets/images/main-header-image.png');">
       <div class="banner-content">
         <h1>LOOK YOUR BEST</h1>
         <h2>FOR YOUR GOOD MOOD</h2>
@@ -29,6 +29,9 @@ import { Router } from '@angular/router';
         <div class="product-card" *ngFor="let product of featuredProducts">
           <div class="product-image" (click)="navigateToProduct(product.product_id)">
             <img [src]="product.main_image_url" [alt]="product.name">
+            <div class="product-overlay">
+              <button class="quick-view-btn">Quick View</button>
+            </div>
           </div>
           <div class="product-info">
             <h3 (click)="navigateToProduct(product.product_id)">{{product.name}}</h3>
@@ -56,8 +59,13 @@ import { Router } from '@angular/router';
       <h2>SHOP COLLECTION</h2>
       <div class="collection-grid">
         <div class="collection-card" *ngFor="let collection of collections">
-          <img [src]="collection.image" [alt]="collection.name">
-          <h3>{{collection.name}}</h3>
+          <div class="collection-image">
+            <img [src]="collection.image" [alt]="collection.name">
+            <div class="collection-overlay">
+              <h3>{{collection.name}}</h3>
+              <button class="btn-primary" routerLink="/products">Shop Now</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -65,19 +73,16 @@ import { Router } from '@angular/router';
     <!-- Features section -->
     <section class="features">
       <div class="feature-card">
-        <img src="assets/icons/quality.svg" alt="Quality">
         <h3>Quality</h3>
-        <p>Our objective is to provide a seamless shopping journey, from browsing to purchase, ensuring convenience and satisfaction in both physical and online stores.</p>
+        <p>Our objective is to provide a seamless shopping journey, from browsing to purchase, ensuring convenience and satisfaction.</p>
       </div>
       <div class="feature-card">
-        <img src="assets/icons/customise.svg" alt="Customisability">
         <h3>Customisability</h3>
-        <p>There are many styles to select from when you browse through our gallery. Every detail identifies your style. At the collaboration, you have complete control over the design process.</p>
+        <p>There are many styles to select from when you browse through our gallery. Every detail identifies your style.</p>
       </div>
       <div class="feature-card">
-        <img src="assets/icons/convenience.svg" alt="Convenience">
         <h3>Convenience</h3>
-        <p>We deliver directly to your home, the office, or on location, so you have the minimum of interruptions during your busy schedule.</p>
+        <p>We deliver directly to your home, the office, or on location, so you have the minimum of interruptions.</p>
       </div>
     </section>
   `,
@@ -90,18 +95,9 @@ import { Router } from '@angular/router';
     .banner {
       position: relative;
       height: 600px;
-      background-image: url('/assets/images/banner.jpg');
       background-size: cover;
       background-position: center;
       color: white;
-    }
-
-    .mega-sale {
-      background-color: #8B6B0B;
-      color: white;
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
     }
 
     .banner-content {
@@ -110,10 +106,6 @@ import { Router } from '@angular/router';
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: left;
-    }
-
-    .view-all{
-        margin-top: 30px;
     }
 
     .banner-content h1 {
@@ -144,11 +136,33 @@ import { Router } from '@angular/router';
     .featured-products {
       padding: 4rem 0;
       text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .view-all {
+      margin: 2rem 0;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: #8B6B0B;
+      border: 2px solid #8B6B0B;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      background-color: #8B6B0B;
+      color: white;
     }
 
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(5, 1fr);
       gap: 2rem;
       padding: 2rem;
     }
@@ -170,7 +184,7 @@ import { Router } from '@angular/router';
     .product-image {
       position: relative;
       width: 100%;
-      padding-top: 133%; /* 4:3 Aspect Ratio */
+      padding-top: 133%;
       overflow: hidden;
     }
 
@@ -181,6 +195,41 @@ import { Router } from '@angular/router';
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .product-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .product-image:hover .product-overlay {
+      opacity: 1;
+    }
+
+    .quick-view-btn {
+      background: white;
+      color: #333;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .product-image:hover .quick-view-btn {
+      transform: translateY(0);
     }
 
     .product-info {
@@ -249,6 +298,7 @@ import { Router } from '@angular/router';
     .shop-collection {
       padding: 4rem 0;
       text-align: center;
+      background: #f5f5f5;
     }
 
     .collection-grid {
@@ -256,23 +306,69 @@ import { Router } from '@angular/router';
       grid-template-columns: repeat(3, 1fr);
       gap: 2rem;
       padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .collection-card {
       position: relative;
+      border-radius: 8px;
       overflow: hidden;
-      border-radius: 4px;
-      cursor: pointer;
+      aspect-ratio: 1;
     }
 
-    .collection-card img {
+    .collection-image {
+      position: relative;
       width: 100%;
-      height: auto;
+      height: 100%;
+    }
+
+    .collection-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .collection-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .collection-card:hover .collection-image img {
+      transform: scale(1.1);
+    }
+
+    .collection-card:hover .collection-overlay {
+      opacity: 1;
+    }
+
+    .collection-overlay h3 {
+      color: white;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      transform: translateY(-20px);
       transition: transform 0.3s;
     }
 
-    .collection-card:hover img {
-      transform: scale(1.05);
+    .collection-overlay button {
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .collection-card:hover .collection-overlay h3,
+    .collection-card:hover .collection-overlay button {
+      transform: translateY(0);
     }
 
     .features {
@@ -280,7 +376,9 @@ import { Router } from '@angular/router';
       grid-template-columns: repeat(3, 1fr);
       gap: 2rem;
       padding: 4rem 2rem;
-      background-color: #f5f5f5;
+      background-color: white;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .feature-card {
@@ -304,7 +402,17 @@ import { Router } from '@angular/router';
       line-height: 1.6;
     }
 
+    @media (max-width: 1200px) {
+      .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
     @media (max-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .collection-grid {
         grid-template-columns: 1fr;
       }
@@ -344,7 +452,7 @@ export class HomeComponent implements OnInit {
   loadFeaturedProducts() {
     this.productService.getFeaturedProducts().subscribe({
       next: (products) => {
-        this.featuredProducts = products.slice(0, 5); // Показываем только первые 5 продуктов
+        this.featuredProducts = products.slice(0, 5);
       },
       error: (error) => {
         console.error('Error loading featured products:', error);

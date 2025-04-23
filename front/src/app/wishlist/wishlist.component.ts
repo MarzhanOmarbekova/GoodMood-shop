@@ -113,10 +113,11 @@ export class WishlistComponent implements OnInit, OnDestroy, OnChanges {
     this.productDetailService.getProductDetail(productId).subscribe({
       next: (detail) => {
         this.selectedProductDetail = detail;
-        this.selectedVariantId =detail.variants?.[0]?.product_variant_id || null;
+        const firstVariantId = detail.variants?.[0]?.product_variant_id;
+        this.selectedVariantId = typeof firstVariantId === 'number' ? firstVariantId : null;
         this.selectedQuantity = 1;
       }
-    })
+    });
   }
 
   closeModal(): void {
