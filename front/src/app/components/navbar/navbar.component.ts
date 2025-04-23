@@ -34,18 +34,14 @@ import { AuthService } from '../../auth/auth.service';
           <a routerLink="/cart" class="icon-button">
             <img src="assets/icons/navigation/cart.svg" alt="user" class="bi bi-person-fill">
           </a>
-        </ng-container>
-        <ng-template #authButtons>
-          <a routerLink="/auth/login" class="icon-button">
-            <img src="assets/images/login.png" alt="login" class="bi bi-box-arrow-in-right">
-          </a>
-          <a routerLink="/auth/register" class="icon-button">
-            <img src="assets/images/register.png" alt="register" class="bi bi-person-plus-fill">
-          </a>
-        </ng-template>
+          
         <button class="icon-button">
           <img src="assets/icons/navigation/search.svg" alt="search" class="bi bi-search">
         </button>
+        </ng-container>
+        <ng-template #authButtons>
+          
+        </ng-template>
       </div>
     </nav>
   `,

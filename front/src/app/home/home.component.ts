@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ProductService } from '../services/product.service';
+import { Product } from '../models/product.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -24,9 +27,18 @@ import { RouterLink } from '@angular/router';
       </div>
       <div class="product-grid">
         <div class="product-card" *ngFor="let product of featuredProducts">
-          <img [src]="product.image" [alt]="product.name">
-          <h3>{{product.name}}</h3>
-          <p class="price">₹{{product.price}}</p>
+          <div class="product-image" (click)="navigateToProduct(product.product_id)">
+            <img [src]="product.main_image_url" [alt]="product.name">
+          </div>
+          <div class="product-info">
+            <h3 (click)="navigateToProduct(product.product_id)">{{product.name}}</h3>
+            <div class="product-footer">
+              <p class="price">{{product.price}} ₽</p>
+              <button class="wishlist-btn" (click)="toggleWishlist(product)" [class.in-wishlist]="product.in_wishlist">
+                <span class="heart-icon">♥</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -143,12 +155,83 @@ import { RouterLink } from '@angular/router';
 
     .product-card {
       text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .product-card img {
+    .product-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .product-image {
+      position: relative;
       width: 100%;
-      height: auto;
-      border-radius: 4px;
+      padding-top: 133%; /* 4:3 Aspect Ratio */
+      overflow: hidden;
+    }
+
+    .product-image img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-info {
+      padding: 1rem;
+    }
+
+    .product-info h3 {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .price {
+      color: #8B6B0B;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .wishlist-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      font-size: 1.5rem;
+      color: #ccc;
+      transition: all 0.3s ease;
+    }
+
+    .wishlist-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .wishlist-btn.in-wishlist {
+      color: #ff4b4b;
+    }
+
+    .heart-icon {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .wishlist-btn:hover .heart-icon {
+      transform: scale(1.2);
     }
 
     .made-to-order {
@@ -179,6 +262,7 @@ import { RouterLink } from '@angular/router';
       position: relative;
       overflow: hidden;
       border-radius: 4px;
+      cursor: pointer;
     }
 
     .collection-card img {
@@ -212,6 +296,12 @@ import { RouterLink } from '@angular/router';
 
     .feature-card h3 {
       margin-bottom: 1rem;
+      color: #8B6B0B;
+    }
+
+    .feature-card p {
+      color: #666;
+      line-height: 1.6;
     }
 
     @media (max-width: 768px) {
@@ -225,18 +315,66 @@ import { RouterLink } from '@angular/router';
     }
   `]
 })
-export class HomeComponent {
-  featuredProducts = [
-    { name: 'Trousers', price: '699', image: 'assets/images/products/trousers.jpg' },
-    { name: 'Vintage Coat', price: '699', image: 'assets/images/products/vintage-coat.jpg' },
-    { name: 'Roxie Red Overshirt', price: '699', image: 'assets/images/products/red-overshirt.jpg' },
-    { name: 'Flowered Jacket', price: '699', image: 'assets/images/products/flowered-jacket.jpg' },
-    { name: 'Marron Overshirt', price: '699', image: 'assets/images/products/marron-overshirt.jpg' }
+export class HomeComponent implements OnInit {
+  featuredProducts: Product[] = [];
+  collections = [
+    {
+      name: 'Men',
+      image: 'assets/images/collection-men.jpg'
+    },
+    {
+      name: 'Women',
+      image: 'assets/images/collection-women.jpg'
+    },
+    {
+      name: 'Accessories',
+      image: 'assets/images/collection-accessories.jpg'
+    }
   ];
 
-  collections = [
-    { name: 'Street Wear', image: 'assets/images/collections/street-wear.jpg' },
-    { name: 'Vintage', image: 'assets/images/collections/vintage.jpg' },
-    { name: 'Classic', image: 'assets/images/collections/classic.jpg' }
-  ];
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.loadFeaturedProducts();
+  }
+
+  loadFeaturedProducts() {
+    this.productService.getFeaturedProducts().subscribe({
+      next: (products) => {
+        this.featuredProducts = products.slice(0, 5); // Показываем только первые 5 продуктов
+      },
+      error: (error) => {
+        console.error('Error loading featured products:', error);
+      }
+    });
+  }
+
+  navigateToProduct(productId: string) {
+    this.router.navigate(['/product', productId]);
+  }
+
+  toggleWishlist(product: Product) {
+    if (product.in_wishlist) {
+      this.productService.removeFromWishList(product.product_id).subscribe({
+        next: () => {
+          product.in_wishlist = false;
+        },
+        error: (error) => {
+          console.error('Error removing from wishlist:', error);
+        }
+      });
+    } else {
+      this.productService.addToWishList(product.product_id).subscribe({
+        next: () => {
+          product.in_wishlist = true;
+        },
+        error: (error) => {
+          console.error('Error adding to wishlist:', error);
+        }
+      });
+    }
+  }
 } 
