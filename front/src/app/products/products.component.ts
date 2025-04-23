@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { Product, Category } from '../models/product.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-products',
@@ -16,7 +17,10 @@ export class ProductsComponent implements OnInit {
   loading: boolean = true;
   selectedCategory: string | undefined = undefined;
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -76,5 +80,9 @@ export class ProductsComponent implements OnInit {
         }
       });
     }
+  }
+
+  navigateToProduct(productId: string): void {
+    this.router.navigate(['/product', productId]);
   }
 } 

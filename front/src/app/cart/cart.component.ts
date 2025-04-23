@@ -3,11 +3,12 @@ import {CartService} from '../services/cart.service';
 import {CartItem, CartResponse} from '../models/cart.model'
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {Router, RouterModule} from '@angular/router';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })
@@ -17,11 +18,11 @@ export class CartComponent implements OnInit {
   loading: boolean = true;
   updatingItems: Set<number> = new Set();
 
+  constructor(private cartService: CartService, private router: Router) { }
+
   ngOnInit() {
     this.fetchCart();
   }
-
-  constructor(private cartService: CartService) { }
 
   fetchCart() {
     this.loading = true;
@@ -36,6 +37,18 @@ export class CartComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  incrementQuantity(item: CartItem): void {
+    if (item.quantity < item.stock) {
+      this.updateQuantity(item, item.quantity + 1);
+    }
+  }
+
+  decrementQuantity(item: CartItem): void {
+    if (item.quantity > 1) {
+      this.updateQuantity(item, item.quantity - 1);
+    }
   }
 
   updateQuantity(item: CartItem, newQuantity: number) {
@@ -57,7 +70,7 @@ export class CartComponent implements OnInit {
     });
   }
 
-  removeItem(productVariantId: number) {
+  removeFromCart(productVariantId: number) {
     if (this.updatingItems.has(productVariantId)) {
       return;
     }
@@ -82,5 +95,9 @@ export class CartComponent implements OnInit {
 
   isUpdating(productVariantId: number): boolean {
     return this.updatingItems.has(productVariantId);
+  }
+
+  navigateToProduct(productId: number): void {
+    this.router.navigate(['/product', productId.toString()]);
   }
 }

@@ -44,7 +44,7 @@
 
     <!-- Products grid -->
     <div *ngIf="!loading && products.length > 0" class="products-grid">
-      <div *ngFor="let product of products" class="product-card">
+      <div *ngFor="let product of products" class="product-card" (click)="navigateToProduct(product.product_id)">
         <div class="product-image">
           <img [src]="product.main_image_url" [alt]="product.name">
           <button 

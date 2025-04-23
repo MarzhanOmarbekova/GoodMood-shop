@@ -16,54 +16,22 @@
   <div class="cart-content" *ngIf="!loading && cartItems.length > 0">
     <div class="cart-items">
       <div class="cart-item" *ngFor="let item of cartItems" [class.updating]="isUpdating(item.product_variant_id)">
-        <div class="item-image-container">
+        <div class="item-image-container" (click)="navigateToProduct(item.product_id)">
           <img [src]="item.product_main_image" [alt]="item.product_name" class="item-image" />
         </div>
-
         <div class="item-details">
-          <div class="item-header">
-            <h3>{{ item.product_name }}</h3>
-            <button class="remove-btn" (click)="removeItem(item.product_variant_id)" [disabled]="isUpdating(item.product_variant_id)">
-              <span class="remove-icon">×</span>
-            </button>
+          <h3 (click)="navigateToProduct(item.product_id)">{{item.product_name}}</h3>
+          <p class="variant-info">Size: {{item.size}}</p>
+          <div class="quantity-controls">
+            <button (click)="decrementQuantity(item)" [disabled]="item.quantity <= 1">-</button>
+            <span>{{item.quantity}}</span>
+            <button (click)="incrementQuantity(item)" [disabled]="item.quantity >= item.stock">+</button>
           </div>
-
-          <p class="description">{{ item.product_description }}</p>
-          
-          <div class="item-meta">
-            <span class="size">Размер: {{ item.size }}</span>
-            <span class="color">Цвет: {{ item.color }}</span>
-          </div>
-
-          <div class="item-controls">
-            <div class="quantity-control">
-              <button 
-                (click)="updateQuantity(item, item.quantity - 1)"
-                [disabled]="item.quantity <= 1 || isUpdating(item.product_variant_id)"
-                class="quantity-btn">
-                −
-              </button> 
-              <input 
-                type="number" 
-                [ngModel]="item.quantity"
-                (ngModelChange)="updateQuantity(item, $event)"
-                [min]="1"
-                [max]="item.stock"
-                [disabled]="isUpdating(item.product_variant_id)"
-                class="quantity-input">
-              <button 
-                (click)="updateQuantity(item, item.quantity + 1)"
-                [disabled]="item.quantity >= item.stock || isUpdating(item.product_variant_id)"
-                class="quantity-btn">
-                +
-              </button>
-            </div>
-
-            <div class="price-info">
-              <p class="unit-price">{{ item.price }} ₸ за шт.</p>
-              <p class="total-price">{{ item.item_total_price }} ₸</p>
-            </div>
-          </div>
+          <p class="price">{{item.item_total_price}} ₽</p>
+          <button class="remove-btn" (click)="removeFromCart(item.product_variant_id)">
+            <span class="icon">×</span>
+            Remove
+          </button>
         </div>
       </div>
     </div>
@@ -72,7 +40,7 @@
       <h3>Итого заказа</h3>
       <div class="summary-row">
         <span>Товары ({{cartItems.length}})</span>
-        <span>{{ totalPrice }} ₸</span>
+        <span>{{ totalPrice }} ₽</span>
       </div>
       <div class="summary-row">
         <span>Доставка</span>
@@ -80,7 +48,7 @@
       </div>
       <div class="summary-total">
         <span>К оплате</span>
-        <span>{{ totalPrice }} ₸</span>
+        <span>{{ totalPrice }} ₽</span>
       </div>
       <button class="checkout-btn" (click)="checkout()">
         Оформить заказ
