@@ -22,7 +22,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         </div>
         <div class="thumbnail-list">
           <div class="thumbnail" 
-               *ngFor="let image of product.images" 
+               *ngFor="let image of product.image_urls" 
                [class.active]="selectedImage === image"
                (click)="changeImage(image)">
             <img [src]="image" [alt]="product.name">
@@ -107,6 +107,14 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
               <li *ngFor="let care of product.care_instructions">{{care}}</li>
             </ul>
           </div>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div class="toast-notification" *ngIf="showToast" [@toastAnimation]>
+        <div class="toast-content">
+          <span class="success-icon">✓</span>
+          Товар добавлен в корзину
         </div>
       </div>
     </div>
@@ -412,6 +420,33 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         position: static;
       }
     }
+
+    /* Toast Notification Styles */
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .success-icon {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
   `],
   animations: [
     trigger('imageChange', [
@@ -429,6 +464,15 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
         style({ transform: 'translateY(20px)', opacity: 0 }),
         animate('500ms ease', style({ transform: 'translateY(0)', opacity: 1 }))
       ])
+    ]),
+    trigger('toastAnimation', [
+      transition(':enter', [
+        style({ transform: 'translateY(100%)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in', style({ transform: 'translateY(100%)', opacity: 0 }))
+      ])
     ])
   ]
 })
@@ -442,6 +486,7 @@ export class ProductDetailComponent implements OnInit {
   showSizeError: boolean = false;
   isAddingToCart: boolean = false;
   imageState: 'initial' | 'changing' = 'initial';
+  showToast: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -520,12 +565,15 @@ export class ProductDetailComponent implements OnInit {
     this.cartService.addItem(this.selectedVariantId, this.quantity).subscribe({
       next: () => {
         this.isAddingToCart = false;
-        // Здесь можно добавить уведомление об успешном добавлении
+        this.showToast = true;
+        // Автоматически скрываем уведомление через 3 секунды
+        setTimeout(() => {
+          this.showToast = false;
+        }, 3000);
       },
       error: (error) => {
         this.isAddingToCart = false;
         console.error('Error adding to cart:', error);
-        // Здесь можно добавить уведомление об ошибке
       }
     });
   }

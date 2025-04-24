@@ -18,7 +18,12 @@ export interface ProductVariant {
 
 export interface ProductDetail extends Product {
   variants: ProductVariant[];
-  additional_images: string[];
+  images: string[];
+  rating?: number;
+  review_count?: number;
+  details?: string[];
+  care_instructions?: string[];
+  image_urls: string[];
 }
 
 export interface Category {
